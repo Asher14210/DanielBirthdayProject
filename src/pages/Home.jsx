@@ -29,9 +29,9 @@ export default function Home(){
   if(pending.current)return;pending.current=true;setBusy(true);setError('');
   try{
    try{await tracker('login',{password:n});navigate('/admin');return}catch(e){if(e.status!==401)throw e}
-   if(n.length>32)throw new Error('Please enter a name of 32 characters or fewer, or the correct admin password.');
    const status=await tracker('status');setAdmin(status.admin);
-   setName(n);timing.current=newTimer();setFirstDone(false);setScene('arrival');
+   const entry=await tracker('enter',{name:n});
+   setName(entry.name);timing.current=newTimer();setFirstDone(false);setScene('arrival');
   }catch(e){setError(e.message)}finally{pending.current=false;setBusy(false)}
  };
  const closeLetter=()=>{setRead(s=>new Set(s).add(letter.id));timing.current=newTimer();setScene(firstDone?'browse':'reveal')};

@@ -38,8 +38,8 @@ function setCookie(res, name, value, age) {
   res.setHeader('Set-Cookie', `${name}=${value}; Path=/; Max-Age=${age}; HttpOnly; SameSite=Strict${secure}`);
 }
 
-function signature(value) {
-  return createHmac('sha256', process.env.ADMIN_PASSWORD).update(`admin:${value}`).digest('hex');
+function signature(value, purpose = 'admin') {
+  return createHmac('sha256', process.env.ADMIN_PASSWORD).update(`${purpose}:${value}`).digest('hex');
 }
 
 export function isAuthorized(req) {
@@ -53,6 +53,11 @@ export function isAuthorized(req) {
 function visitorId(req) {
   const value = cookie(req, 'decision_visitor');
   return uuid.test(value) ? value : null;
+}
+
+function hasEntry(req, id) {
+  const [expires, signed] = cookie(req, 'decision_entry').split('.');
+  return Boolean(process.env.ADMIN_PASSWORD && id && /^\d+$/.test(expires || '') && Number(expires) > Date.now() && equalSecret(signature(expires, `entry:${id}`), signed || ''));
 }
 
 export default async function handler(req, res) {
@@ -96,6 +101,15 @@ export default async function handler(req, res) {
         setCookie(res, 'decision_admin', '', 0);
         return res.status(200).json({ ok: true });
       }
+      if (action === 'enter') {
+        if (!process.env.ADMIN_PASSWORD) return res.status(503).json({ error: 'Entry is not configured.' });
+        if (typeof body?.name !== 'string' || body.name.trim() !== 'Daniel') return res.status(403).json({ error: 'This post is reserved for Daniel.' });
+        const id = visitorId(req);
+        if (!id) return res.status(428).json({ error: 'Please reload with cookies enabled before entering.' });
+        const expires = String(Date.now() + 8 * 60 * 60 * 1000);
+        setCookie(res, 'decision_entry', `${expires}.${signature(expires, `entry:${id}`)}`, 8 * 60 * 60);
+        return res.status(200).json({ ok: true, name: 'Daniel' });
+      }
       const submission = validateSubmission(body);
       if (!submission) return res.status(400).json({ error: 'Invalid submission.' });
 
@@ -103,6 +117,7 @@ export default async function handler(req, res) {
       const admin = body.adminTest === true && isAuthorized(req);
       const id = visitorId(req);
       if (!id) return res.status(428).json({ error: 'Please reload with cookies enabled before choosing.' });
+      if (!admin && (submission.name !== 'Daniel' || !hasEntry(req, id))) return res.status(403).json({ error: 'Please enter as Daniel on the homepage before choosing.' });
       const { error } = await database().from('letter_decisions').upsert({
         visitor_id: admin ? `test:${id}` : id,
         request_id: submission.requestId,

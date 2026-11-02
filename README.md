@@ -2,6 +2,8 @@
 
 ## Decision tracker
 
+Only the exact name `Daniel` (ignoring surrounding spaces) passes the homepage name gate. The server issues an eight-hour signed entry cookie tied to the browser and requires it for normal submissions. This is a name gate, not identity verification or protection for the letter text bundled in the public website. The admin password still opens `/admin` from the homepage and allows unlimited test choices.
+
 Every confirmed letter opening is recorded with the participant name, browser identity, choice number, visible-tab picking time, and database submission time. After the first letter, the original “Kidding.” reveal lets visitors continue browsing. Reopening a letter counts as another choice. A letter opens only after saving succeeds; retries of the same request do not create duplicate records.
 
 Timing starts when the carousel appears and stops at confirmation. Each subsequent choice starts a fresh timer, excluding time spent reading, on the reveal, or in a hidden tab. The timer restarts if the page reloads before submission.
@@ -10,7 +12,7 @@ Enter the admin password in the homepage name field to open `/admin`, or log in 
 
 Admins can select **Test letters**, **Choose again**, or **Admin records**. Test submissions are labeled `[Test]` and have a separate choice sequence from the browser's normal visits. Log out to return to participant mode.
 
-A persistent cookie groups choices from the same browser across refreshes, restarts, and name changes. There is no choice limit. Clearing cookies, private browsing, or switching browsers creates a separate history. The private `letter_decision_history` view numbers each browser's records in insertion order before the admin API limits its response to the newest 500 records.
+A persistent cookie groups choices from the same browser across refreshes and restarts. There is no choice limit. Clearing cookies, private browsing, or switching browsers creates a separate history. The private `letter_decision_history` view numbers each browser's records in insertion order before the admin API limits its response to the newest 500 records.
 
 For Vercel:
 
