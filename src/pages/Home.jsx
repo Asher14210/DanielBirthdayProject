@@ -34,7 +34,7 @@ export default function Home(){
    setName(entry.name);timing.current=newTimer();setFirstDone(false);setScene('arrival');
   }catch(e){setError(e.message)}finally{pending.current=false;setBusy(false)}
  };
- const closeLetter=()=>{setRead(s=>new Set(s).add(letter.id));timing.current=newTimer();setScene(firstDone?'browse':'reveal')};
+ const closeLetter=()=>{setRead(s=>new Set(s).add(letter.id));timing.current=newTimer();setScene(firstDone||letters.length===1?'browse':'reveal')};
  const choose=()=>{if(!pending.current){timing.current.requestId=crypto.randomUUID();setError('');setScene('confirm')}};
  const openLetter=async()=>{
   const timer=timing.current;if(pending.current||timer.submitted)return;
@@ -52,7 +52,7 @@ export default function Home(){
   {scene==='name'&&<NameEntry key="name" onContinue={begin} busy={busy} error={error}/>}
   {scene==='arrival'&&<Arrival key="arrival" letters={letters} onContinue={()=>setScene('browse')}/>} 
   {scene==='browse'&&<LetterCarousel key="browse" letters={letters} selected={selected} setSelected={setSelected} read={read} onChoose={choose}/>} 
-  {scene==='confirm'&&<><LetterCarousel key="under" letters={letters} selected={selected} setSelected={setSelected} read={read} onChoose={choose}/><ConfirmationSlip key="confirm" letter={letter} first={!firstDone} busy={busy} error={error} onYes={openLetter} onNo={()=>setScene('browse')}/></>}
+  {scene==='confirm'&&<><LetterCarousel key="under" letters={letters} selected={selected} setSelected={setSelected} read={read} onChoose={choose}/><ConfirmationSlip key="confirm" letter={letter} first={!firstDone&&letters.length>1} busy={busy} error={error} onYes={openLetter} onNo={()=>setScene('browse')}/></>}
   {scene==='opening'&&<OpeningSequence key={letter.id+'open'} letter={letter} onComplete={()=>setScene('reading')}/>} 
   {scene==='reading'&&<ReadingMode key={letter.id+'read'} letter={letter} onClose={closeLetter}/>} 
   {scene==='reveal'&&<RevealNote key="reveal" onContinue={()=>{setFirstDone(true);setScene('browse')}}/>}

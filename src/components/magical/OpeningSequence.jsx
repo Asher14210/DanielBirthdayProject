@@ -24,8 +24,8 @@ export default function OpeningSequence({letter,onComplete}) {
         initial={{y:6}} animate={{y:[6,6,-12,-150,-178]}}
         transition={{duration:D*.5,delay:.62,times:[0,.18,.32,1],ease:ez}}>
         <header><span>{letter.mark}</span></header>
-        <h2>{letter.salutation}</h2>
-        <p>{letter.body[0]}</p>
+        {letter.salutation?<h2 dir="auto">{letter.salutation}</h2>:null}
+        <p dir="auto">{letter.body[0]}</p>
       </motion.div>
       {/* Front pocket — the lip the letter slides behind */}
       <div className="open-front" style={{'--p':paper,'--p2':paper2}}/>
