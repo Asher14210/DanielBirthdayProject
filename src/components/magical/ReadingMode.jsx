@@ -6,8 +6,8 @@ export default function ReadingMode({letter,onClose}) {
   <button className="close-control" onClick={onClose} aria-label="Return to letters"><X/><span>Return to Letters</span></button>
   <article className="letter-sheet" style={{'--ink':letter.ink}}>
    <div className="letter-scroll"><header><span>{letter.mark}</span><small>PRIVATE CORRESPONDENCE · {letter.name.toUpperCase()}</small></header>
-    {letter.salutation?<h1 dir="auto">{letter.salutation}</h1>:null}{letter.body.map((p,i)=><p key={i} dir="auto">{p}</p>)}
-    <footer>{letter.closing?<>{letter.closing}<br/>{letter.sign}</>:<>— {letter.sign}</>}</footer><div className="paper-insignia">{letter.mark}</div>
+    {letter.salutation?<h1 dir="auto">{letter.salutation}</h1>:null}{letter.body.map((p,i)=><p key={i} dir="auto" className="whitespace-pre-wrap">{p}</p>)}
+    {letter.closing||letter.sign?<footer>{letter.closing?<>{letter.closing}<br/>{letter.sign}</>:<>— {letter.sign}</>}</footer>:null}<div className="paper-insignia">{letter.mark}</div>
    </div>
   </article>
   <div className="reading-envelope" style={{'--paper':letter.tone}}/>

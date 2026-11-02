@@ -26,4 +26,17 @@ export const letters = [
     closing: 'Best,',
     sign: 'Rachel Zhang',
   },
+  {
+    id: 'yvonne',
+    name: 'Happy Birthday!',
+    sender: 'Yvonne',
+    tone: '#d6bd91',
+    ink: '#453326',
+    seal: '#805039',
+    mark: '⌂',
+    note: '',
+    salutation: '',
+    body: ["To Immeral:\nI would love to strip you again \n-Kishmo \n\nTo Immeral:\nI’m going to steal your shinnies and your clothing and leave you to kishmo.\n-Genova\n\nTo Kaelmora:\nLeave me and my wife alone. Don’t touch Canada. You’re a pretty smart person.\n-Fabian\n\nTo Immeral:\nSuch a lovely being! You always bring new energy to the team and we always welcome you with open arms! I hope you have a great and wonderful journey, and remember, if you miss home, I can send you some pancakes 🥞\n-Feathers\n\n\nTo Daniel: \nI know three Daniel’s, two are nice and one gave all of us PTSD. I still think of you when I hear “Daniel” though. You have been such a wonderful leader and strong pillar to the team, always looking for new ways to improve the game and come up with new ideas. It is truly amazing to have met you in our club, shine bright, and never stop being Daniel, the good one. Lastly, happy birthday!\n-Yvonne"],
+    sign: '',
+  },
 ];
