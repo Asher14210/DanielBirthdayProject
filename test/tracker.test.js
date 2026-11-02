@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createHmac } from 'node:crypto';
+import { createHmac, randomUUID } from 'node:crypto';
 import handler, { isAuthorized, validateSubmission } from '../api/tracker.js';
 
 function response() {
@@ -13,13 +13,21 @@ function response() {
   };
 }
 
+async function request(method, action, body, cookies = '') {
+  const res = response();
+  await handler({ method, url: `/api/tracker?action=${action}`, headers: { cookie: cookies, 'content-type': 'application/json' }, body }, res);
+  return res;
+}
+
 test('validates decisions and rejects forged letter names', () => {
-  assert.deepEqual(validateSubmission({ name: 'Daniel', letterId: 'botanist', durationMs: 1234 }), {
-    name: 'Daniel', letterId: 'botanist', letterName: 'The Botanist', durationMs: 1234,
+  const requestId = randomUUID();
+  assert.deepEqual(validateSubmission({ name: 'Daniel', letterId: 'botanist', durationMs: 1234, requestId }), {
+    name: 'Daniel', letterId: 'botanist', letterName: 'The Botanist', durationMs: 1234, requestId,
   });
-  assert.equal(validateSubmission({ name: '', letterId: 'botanist', durationMs: 1234 }), null);
-  assert.equal(validateSubmission({ name: 'Daniel', letterId: 'forged', durationMs: 1234 }), null);
-  assert.equal(validateSubmission({ name: 'Daniel', letterId: 'botanist', durationMs: null }), null);
+  assert.equal(validateSubmission({ name: '', letterId: 'botanist', durationMs: 1234, requestId }), null);
+  assert.equal(validateSubmission({ name: 'Daniel', letterId: 'forged', durationMs: 1234, requestId }), null);
+  assert.equal(validateSubmission({ name: 'Daniel', letterId: 'botanist', durationMs: null, requestId }), null);
+  assert.equal(validateSubmission({ name: 'Daniel', letterId: 'botanist', durationMs: 1234, requestId: 'invalid' }), null);
 });
 
 test('requires an exact admin password', () => {
@@ -45,7 +53,45 @@ test('rejects unauthenticated reads and malformed writes before database access'
   assert.equal(crossSite.statusCode, 403);
 });
 
-test('persistent visitor lock, concurrent submissions, and server-authorized admin testing', async t => {
+test('only Daniel can enter and submissions require an unexpired entry bound to the browser', async t => {
+  process.env.ADMIN_PASSWORD = 'test-secret';
+  t.mock.method(globalThis, 'fetch', () => assert.fail('Rejected requests must not access the database'));
+  const visitor = `decision_visitor=${randomUUID()}`;
+  for (const name of ['', 'daniel', 'DANIEL', 'Daniela', 'Another name', null, ['Daniel']]) {
+    assert.equal((await request('POST', 'enter', { name }, visitor)).statusCode, 403);
+  }
+  assert.equal((await request('POST', 'enter', { name: 'Daniel' })).statusCode, 428);
+  assert.equal((await request('POST', 'enter', { name: 'Daniel' }, 'decision_visitor=invalid')).statusCode, 428);
+  const entry = await request('POST', 'enter', { name: '  Daniel \n' }, visitor);
+  assert.equal(entry.statusCode, 200);
+  assert.deepEqual(entry.body, { ok: true, name: 'Daniel' });
+  assert.match(entry.headers['Set-Cookie'], /Max-Age=28800; HttpOnly; SameSite=Strict/);
+  const entryCookie = entry.headers['Set-Cookie'].split(';')[0];
+  const [expires, signed] = entryCookie.slice('decision_entry='.length).split('.');
+  const id = visitor.slice('decision_visitor='.length);
+  assert.ok(Number(expires) > Date.now());
+  assert.equal(signed, createHmac('sha256', process.env.ADMIN_PASSWORD).update(`entry:${id}:${expires}`).digest('hex'));
+
+  const body = { name: 'Daniel', letterId: 'botanist', durationMs: 1500, requestId: randomUUID() };
+  assert.equal((await request('POST', '', body, visitor)).statusCode, 403);
+  assert.equal((await request('POST', '', body, `${visitor}; ${entryCookie}tampered`)).statusCode, 403);
+  assert.equal((await request('POST', '', body, `decision_visitor=${randomUUID()}; ${entryCookie}`)).statusCode, 403);
+  assert.equal((await request('POST', '', { ...body, name: 'daniel' }, `${visitor}; ${entryCookie}`)).statusCode, 403);
+  assert.equal((await request('POST', '', { ...body, name: 'Someone else' }, `${visitor}; ${entryCookie}`)).statusCode, 403);
+
+  const expired = String(Date.now() - 1000);
+  const expiredSignature = createHmac('sha256', process.env.ADMIN_PASSWORD).update(`entry:${id}:${expired}`).digest('hex');
+  assert.equal((await request('POST', '', body, `${visitor}; decision_entry=${expired}.${expiredSignature}`)).statusCode, 403);
+  const adminSignature = createHmac('sha256', process.env.ADMIN_PASSWORD).update(`admin:${expires}`).digest('hex');
+  assert.equal((await request('POST', '', body, `${visitor}; decision_entry=${expires}.${adminSignature}`)).statusCode, 403);
+
+  process.env.ADMIN_PASSWORD = 'rotated-password';
+  assert.equal((await request('POST', '', body, `${visitor}; ${entryCookie}`)).statusCode, 403);
+  delete process.env.ADMIN_PASSWORD;
+  assert.equal((await request('POST', 'enter', { name: 'Daniel' }, visitor)).statusCode, 503);
+});
+
+test('multiple choices retain browser identity, retries deduplicate, and admin tests stay separate', async t => {
   process.env.ADMIN_PASSWORD = 'test-secret';
   process.env.SUPABASE_URL = 'https://tracker-test.supabase.co';
   process.env.SUPABASE_SECRET_KEY = 'test-server-key';
@@ -56,29 +102,40 @@ test('persistent visitor lock, concurrent submissions, and server-authorized adm
     if (options.method === 'POST') {
       const record = JSON.parse(options.body);
       assert.ok(record.participant_name.length <= 32);
-      if (records.has(record.visitor_id)) return Response.json({ code: '23505' }, { status: 409 });
-      records.set(record.visitor_id, { ...record, submitted_at: new Date().toISOString() });
+      assert.equal(url.searchParams.get('on_conflict'), 'visitor_id,request_id');
+      assert.match(new Headers(options.headers).get('prefer'), /resolution=ignore-duplicates/);
+      const key = `${record.visitor_id}:${record.request_id}`;
+      if (!records.has(key)) records.set(key, { ...record, id: records.size + 1, submitted_at: new Date().toISOString() });
       return new Response(null, { status: 201 });
     }
-    const id = url.searchParams.get('visitor_id')?.slice(3);
-    return Response.json(id ? (records.has(id) ? [records.get(id)] : []) : [...records.values()]);
+    assert.ok(url.pathname.endsWith('/letter_decision_history'));
+    const counts = new Map();
+    return Response.json([...records.values()].map(record => {
+      const choice_order = (counts.get(record.visitor_id) || 0) + 1;
+      counts.set(record.visitor_id, choice_order);
+      return { ...record, choice_order };
+    }).reverse());
   });
-  const request = async (method, action, body, cookies = '') => {
-    const res = response();
-    await handler({ method, url: `/api/tracker?action=${action}`, headers: { cookie: cookies, 'content-type': 'application/json' }, body }, res);
-    return res;
-  };
-  const body = { name: 'QA', letterId: 'botanist', durationMs: 1500 };
+  const body = { name: 'Daniel', letterId: 'botanist', durationMs: 1500, requestId: randomUUID() };
   assert.equal((await request('POST', '', body)).statusCode, 428);
   const initial = await request('GET', 'status');
-  assert.deepEqual(initial.body, { admin: false, submitted: false });
+  assert.deepEqual(initial.body, { admin: false });
   const visitor = initial.headers['Set-Cookie'].split(';')[0];
   assert.match(initial.headers['Set-Cookie'], /Max-Age=31536000; HttpOnly/);
-  const concurrent = await Promise.all([request('POST', '', body, visitor), request('POST', '', body, visitor)]);
-  assert.deepEqual(concurrent.map(res => res.statusCode).sort(), [200, 409]);
+  const entered = await request('POST', 'enter', { name: 'Daniel' }, visitor);
+  assert.equal(entered.statusCode, 200);
+  const participantCookies = `${visitor}; ${entered.headers['Set-Cookie'].split(';')[0]}`;
+  const concurrent = await Promise.all([request('POST', '', body, participantCookies), request('POST', '', body, participantCookies)]);
+  assert.deepEqual(concurrent.map(res => res.statusCode), [200, 200]);
   assert.equal(records.size, 1);
-  assert.equal((await request('GET', 'status', undefined, visitor)).body.submitted, true);
-  assert.equal((await request('POST', '', { ...body, name: 'Different name' }, visitor)).statusCode, 409);
+  const returning = await request('GET', 'status', undefined, visitor);
+  assert.equal(returning.headers['Set-Cookie'].split(';')[0], visitor);
+  const nextChoices = await Promise.all([
+    request('POST', '', { ...body, name: ' Daniel ', letterId: 'alchemist', requestId: randomUUID() }, participantCookies),
+    request('POST', '', { ...body, requestId: randomUUID() }, participantCookies),
+  ]);
+  assert.deepEqual(nextChoices.map(res => res.statusCode), [200, 200]);
+  assert.equal(records.size, 3);
   assert.equal((await request('POST', '', { ...body, adminTest: true }, visitor)).statusCode, 401);
   assert.equal((await request('GET', '', undefined, visitor)).statusCode, 401);
   assert.equal((await request('POST', 'login', { password: 'wrong' })).statusCode, 401);
@@ -89,14 +146,28 @@ test('persistent visitor lock, concurrent submissions, and server-authorized adm
   const cookies = `${visitor}; ${adminCookie}`;
   assert.equal((await request('GET', 'status', undefined, cookies)).body.admin, true);
   assert.equal((await request('GET', '', undefined, `${cookies}tampered`)).statusCode, 401);
-  for (let i = 0; i < 2; i++) assert.equal((await request('POST', '', { ...body, adminTest: true }, cookies)).statusCode, 200);
-  assert.equal(records.size, 3);
+  for (let i = 0; i < 2; i++) assert.equal((await request('POST', '', { ...body, name: 'QA', requestId: randomUUID(), adminTest: true }, cookies)).statusCode, 200);
+  assert.equal(records.size, 5);
   assert.equal([...records.values()].filter(row => row.participant_name === '[Test] QA').length, 2);
-  assert.equal((await request('GET', '', undefined, cookies)).body.submissions.length, 3);
-  assert.equal((await request('POST', '', { ...body, name: 'A'.repeat(32), adminTest: true }, cookies)).statusCode, 200);
+  const history = (await request('GET', '', undefined, cookies)).body.submissions;
+  assert.ok(history.filter(row => !row.visitor_id.startsWith('test:')).every(row => row.participant_name === 'Daniel'));
+  assert.deepEqual(history.filter(row => !row.visitor_id.startsWith('test:')).map(row => row.choice_order), [3, 2, 1]);
+  assert.deepEqual(history.filter(row => row.visitor_id.startsWith('test:')).map(row => row.choice_order), [2, 1]);
+  assert.equal((await request('POST', '', { ...body, name: 'A'.repeat(32), requestId: randomUUID(), adminTest: true }, cookies)).statusCode, 200);
   const logout = await request('POST', 'logout', {}, cookies);
   assert.match(logout.headers['Set-Cookie'], /decision_admin=;.*Max-Age=0/);
-  assert.equal((await request('POST', '', body, visitor)).statusCode, 409);
+  assert.equal((await request('POST', '', { ...body, requestId: randomUUID() }, participantCookies)).statusCode, 200);
+  const otherVisitor = (await request('GET', 'status')).headers['Set-Cookie'].split(';')[0];
+  const otherEntry = await request('POST', 'enter', { name: 'Daniel' }, otherVisitor);
+  assert.equal((await request('POST', '', body, `${otherVisitor}; ${otherEntry.headers['Set-Cookie'].split(';')[0]}`)).statusCode, 200);
+  assert.equal(records.size, 8);
+  const finalHistory = (await request('GET', '', undefined, cookies)).body.submissions;
+  assert.deepEqual(finalHistory.filter(row => row.visitor_id === visitor.slice('decision_visitor='.length)).map(row => row.choice_order), [4, 3, 2, 1]);
+  assert.deepEqual(finalHistory.filter(row => row.visitor_id === otherVisitor.slice('decision_visitor='.length)).map(row => row.choice_order), [1]);
+  assert.ok(finalHistory.every(row => row.duration_ms === 1500 && Number.isFinite(Date.parse(row.submitted_at))));
   process.env.ADMIN_PASSWORD = 'rotated-password';
   assert.equal((await request('GET', '', undefined, cookies)).statusCode, 401);
+  assert.equal((await request('POST', '', { ...body, requestId: randomUUID() }, participantCookies)).statusCode, 403);
+  assert.equal((await request('POST', '', { ...body, requestId: randomUUID(), adminTest: true }, cookies)).statusCode, 401);
+  assert.equal(records.size, 8);
 });

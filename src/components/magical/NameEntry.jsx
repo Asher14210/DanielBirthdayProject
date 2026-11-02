@@ -14,7 +14,7 @@ export default function NameEntry({onContinue,busy=false,error=''}) {
         onKeyDown={e=>e.key==='Enter'&&submit()} placeholder="Your name" maxLength={256} aria-label="Your name" autoComplete="off" disabled={busy}/>
       <PaperButton onClick={submit} disabled={busy}>{busy?'Please wait…':'Seal & begin'}</PaperButton>
       {error&&<p role="alert">{error}</p>}
-      <small className="name-hint">Keep your privacy — a chosen name will do.</small>
+      <small className="name-hint">This post is reserved for its intended recipient.</small>
     </motion.div>
   </motion.section>;
 }
