@@ -1,0 +1,5 @@
+[functions.letter-tracker]
+# The handler verifies signed visitor/admin cookies itself. The public
+# name/status endpoints cannot require a Supabase Auth JWT.
+verify_jwt = false
+entrypoint = "./functions/letter-tracker/index.ts"
