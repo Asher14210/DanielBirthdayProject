@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createHmac, randomUUID } from 'node:crypto';
-import handler, { isAuthorized, validateSubmission } from '../api/tracker.js';
+import handler, { isAuthorized, validateSubmission } from '../supabase/functions/_shared/tracker.js';
 
 function response() {
   return {
