@@ -2,7 +2,7 @@
 
 ## Letter content
 
-The public collection currently contains one real letter: **Wendy — 别看这个**, using the winter envelope palette and snowflake seal. The supplied multilingual message is preserved verbatim; no sample letters or generated message paragraphs are shown. Adding more real entries to `src/components/magical/letterData.js` restores the multi-letter browsing/reveal flow automatically.
+The public collection contains **Wendy — 别看这个** first, using the winter envelope palette and snowflake seal, followed by **Rachel — Happy Eggberthday!**, using the Botanist's green palette and leaf seal. Both supplied messages are preserved verbatim, including Rachel's two-line closing. No sample letters or generated message paragraphs are shown. Real entries in `src/components/magical/letterData.js` drive the multi-letter browsing/reveal flow automatically.
 
 When changing letter IDs or names, deploy the Supabase function before the website so tracking recognizes them. Its server-only legacy ID/name map accepts already-open pages from earlier deployments without putting sample content in the frontend or rewriting historical records.
 

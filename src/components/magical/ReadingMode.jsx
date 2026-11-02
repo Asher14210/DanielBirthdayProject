@@ -7,7 +7,7 @@ export default function ReadingMode({letter,onClose}) {
   <article className="letter-sheet" style={{'--ink':letter.ink}}>
    <div className="letter-scroll"><header><span>{letter.mark}</span><small>PRIVATE CORRESPONDENCE · {letter.name.toUpperCase()}</small></header>
     {letter.salutation?<h1 dir="auto">{letter.salutation}</h1>:null}{letter.body.map((p,i)=><p key={i} dir="auto">{p}</p>)}
-    <footer>— {letter.sign}</footer><div className="paper-insignia">{letter.mark}</div>
+    <footer>{letter.closing?<>{letter.closing}<br/>{letter.sign}</>:<>— {letter.sign}</>}</footer><div className="paper-insignia">{letter.mark}</div>
    </div>
   </article>
   <div className="reading-envelope" style={{'--paper':letter.tone}}/>

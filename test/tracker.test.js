@@ -131,11 +131,12 @@ test('multiple choices retain browser identity, retries deduplicate, and admin t
   const returning = await request('GET', 'status', undefined, visitor);
   assert.equal(returning.headers['Set-Cookie'].split(';')[0], visitor);
   const nextChoices = await Promise.all([
-    request('POST', '', { ...body, name: ' Daniel ', letterId: 'wendy', requestId: randomUUID() }, participantCookies),
+    request('POST', '', { ...body, name: ' Daniel ', letterId: 'rachel', requestId: randomUUID() }, participantCookies),
     request('POST', '', { ...body, requestId: randomUUID() }, participantCookies),
   ]);
   assert.deepEqual(nextChoices.map(res => res.statusCode), [200, 200]);
   assert.equal(records.size, 3);
+  assert.equal([...records.values()].find(record => record.letter_id === 'rachel').letter_name, 'Happy Eggberthday!');
   assert.equal((await request('POST', '', { ...body, adminTest: true }, visitor)).statusCode, 401);
   assert.equal((await request('GET', '', undefined, visitor)).statusCode, 401);
   assert.equal((await request('POST', 'login', { password: 'wrong' })).statusCode, 401);

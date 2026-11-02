@@ -12,4 +12,18 @@ export const letters = [
     body: ["生日快樂 Happy Birthday お誕生日おめでとう 생일 축하해요 Joyeux anniversaire ¡Feliz cumpleaños Buon compleanno Feliz aniversário С днём рождения สุขสันต์วันเกิด Chúc mừng sinh nhật Selamat ulang tahun Gefeliciteerd met je verjaardag Χρόνια πολλά Doğum günün kutlu olsun जन्मदिन मुबारक हो Grattis på födelsedagen Wszystkiego najlepszego z okazji urodzin Même si je t'ai déjà présenté mes vœux, je tiens tout de même à le dire : on n'a vraiment pas l'impression que tu as vieilli d'un an. Lu selalu jadi orang yang luar biasa—berhati yang murni. יום הולדת שמח Спадзяюся, што ў бліжэйшыя дні ўсё ў вас пройдзе гладка. Εύχομαι ο σύλλογός σου να πάει πολύ καλά. Ich hoffe, alle deine Hühner überleben."],
     sign: 'Wendy',
   },
+  {
+    id: 'rachel',
+    name: 'Happy Eggberthday!',
+    sender: 'Rachel',
+    tone: '#778066',
+    ink: '#263e2e',
+    seal: '#334c38',
+    mark: '❧',
+    note: '',
+    salutation: '',
+    body: ["It’s a little bitty late, but I still want to you to know that I’m glad to know you as a friend, and grateful to write this for your birthday. It is going to be a wonderful, and stressful year. A year of growth, struggles, frustrations, but also, joy. Those experiences are always promised and I don’t want to provide any false hopes or prospects. But I know that an effective way of converting those experiences to joy is, friendship. Talk to us, ask us out, and let’s continue to share all the best and the worse of life. But not at Bastet that often anymore….I know that it was always my idea to go there, but let’s find another place haha. Anyways, best of luck and do not throw away your shot!"],
+    closing: 'Best,',
+    sign: 'Rachel Zhang',
+  },
 ];
