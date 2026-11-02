@@ -106,6 +106,10 @@
 .flap-shade{position:absolute;inset:0;clip-path:polygon(0 0,100% 0,50% 67%);background:linear-gradient(180deg,transparent 38%,#1c110922 100%)}
 .envelope-side.left{clip-path:polygon(0 0,53% 58%,0 100%)}.envelope-side.right{clip-path:polygon(100% 0,47% 58%,100% 100%)}
 .envelope-address{position:absolute;inset:58px 78px 28px 46px;z-index:2;text-align:left;display:flex;flex-direction:column;text-shadow:0 1px 0 #fff7e033}.envelope-address small{font-style:italic;opacity:.62}.envelope-address b{font-size:1.35rem;margin-top:.35rem;letter-spacing:.005em}.envelope-address em{margin-top:auto;font-size:.95rem;opacity:.82}
+/* Longer titles sit above the wax seal without changing the other envelopes. */
+.envelope--long-title .envelope-address{top:25px;right:90px}
+.envelope--long-title .envelope-address b{font-size:1.05rem;line-height:1.1}
+@media(max-width:700px){.envelope--long-title .envelope-address{top:18px;right:84px}.envelope--long-title .envelope-address b{font-size:.95rem}}
 .stamp{position:absolute;right:24px;top:22px;width:48px;height:57px;border:2px dashed var(--ink);z-index:3;font-size:.7rem;padding-top:5px;transform:rotate(3deg);box-shadow:1px 2px 3px #1c110966;background:#fff8e808}.stamp i{display:block;font-size:1.4rem}
 .wax-seal{position:absolute;z-index:4;left:46.5%;top:40%;width:62px;height:62px}.wax-rim{position:absolute;inset:0;border-radius:50% 54% 47% 53%/52% 48% 54% 50%;background:radial-gradient(circle at 50% 55%,var(--wax2) 0%,var(--wax2) 92%,#1a0e0c 100%);filter:drop-shadow(2px 5px 4px #150c0bcc)}
 .wax-face{position:absolute;inset:11%;border-radius:46% 54% 49% 51%/52% 48% 52% 48%;background:radial-gradient(circle at 36% 28%,var(--wax3) 0%,var(--wax) 42%,var(--wax2) 100%);box-shadow:inset 0 2px 2px #fff3,inset 0 -3px 6px #1a0c0866;display:grid;place-items:center;color:#efcf90;text-shadow:0 1px 1px #2a0e0c}.wax-face i{border:1px solid #f3d59155;border-radius:50%;width:30px;height:30px;display:grid;place-items:center;box-shadow:inset 0 0 0 2px #2a0e0c44}

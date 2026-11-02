@@ -2,7 +2,7 @@
 
 ## Letter content
 
-The public collection contains **Wendy — 别看这个** first, using the winter envelope palette and snowflake seal; **Rachel — Happy Eggberthday!** second, using the Botanist's green palette and leaf seal; and **Yvonne — Happy Birthday!** third, using A Letter From Home's warm paper palette and house seal. All supplied messages are preserved verbatim, including Rachel's two-line closing and Yvonne's line breaks and inline signatures. No sample letters or generated message paragraphs are shown. Real entries in `src/components/magical/letterData.js` drive the multi-letter browsing/reveal flow automatically.
+The public collection contains **Wendy — 别看这个** first, using the winter envelope palette and snowflake seal; **Rachel — Happy Eggberthday!** second, using the Botanist's green palette and leaf seal; **Yvonne — Happy Birthday!** third, using A Letter From Home's warm paper palette and house seal; and **Amy — Totally no Chaotic Chaotic Evilness in here** fourth, also using the Botanist style. All supplied messages are preserved verbatim, including Rachel's two-line closing and Yvonne's and Amy's line breaks and inline signatures. No sample letters or generated message paragraphs are shown. Real entries in `src/components/magical/letterData.js` drive the multi-letter browsing/reveal flow automatically.
 
 When changing letter IDs or names, deploy the Supabase function before the website so tracking recognizes them. Its server-only legacy ID/name map accepts already-open pages from earlier deployments without putting sample content in the frontend or rewriting historical records.
 
