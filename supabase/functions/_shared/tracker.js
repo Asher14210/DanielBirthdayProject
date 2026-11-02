@@ -4,7 +4,51 @@ import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { letters } from '../../../src/components/magical/letterData.js';
 
-const letterNames = new Map(letters.map(({ id, name }) => [id, name]));
+// Server-only compatibility for already-open pages from the previous deployment.
+// These IDs are never imported into the current frontend; historical names stay accurate.
+const legacyLetterNames = [
+  [
+    "botanist",
+    "The Botanist"
+  ],
+  [
+    "midnight",
+    "Midnight Correspondence"
+  ],
+  [
+    "crimson",
+    "The Crimson Invitation"
+  ],
+  [
+    "home",
+    "A Letter From Home"
+  ],
+  [
+    "archivist",
+    "The Archivist"
+  ],
+  [
+    "alchemist",
+    "The Alchemist"
+  ],
+  [
+    "winter",
+    "The Winter Letter"
+  ],
+  [
+    "rose",
+    "The Rose Letter"
+  ],
+  [
+    "unknown",
+    "Unknown Sender"
+  ],
+  [
+    "golden",
+    "The Golden Letter"
+  ]
+];
+const letterNames = new Map([...legacyLetterNames, ...letters.map(({ id, name }) => [id, name])]);
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 let client;
 

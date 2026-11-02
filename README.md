@@ -1,10 +1,16 @@
 # DanielBirthdayProject
 
+## Letter content
+
+The public collection currently contains one real letter: **Wendy — 别看这个**, using the winter envelope palette and snowflake seal. The supplied multilingual message is preserved verbatim; no sample letters or generated message paragraphs are shown. Adding more real entries to `src/components/magical/letterData.js` restores the multi-letter browsing/reveal flow automatically.
+
+When changing letter IDs or names, deploy the Supabase function before the website so tracking recognizes them. Its server-only legacy ID/name map accepts already-open pages from earlier deployments without putting sample content in the frontend or rewriting historical records.
+
 ## Decision tracker
 
 Only the exact name `Daniel` (ignoring surrounding spaces) passes the homepage name gate. The server issues an eight-hour signed entry cookie tied to the browser and requires it for normal submissions. This is a name gate, not identity verification or protection for the letter text bundled in the public website. The admin password still opens `/admin` from the homepage and allows unlimited test choices.
 
-Every confirmed letter opening is recorded with the participant name, browser identity, choice number, visible-tab picking time, and database submission time. After the first letter, the original “Kidding.” reveal lets visitors continue browsing. Reopening a letter counts as another choice. A letter opens only after saving succeeds; retries of the same request do not create duplicate records.
+Every confirmed letter opening is recorded with the participant name, browser identity, choice number, visible-tab picking time, and database submission time. With multiple letters, the original “Kidding.” reveal lets visitors continue browsing after their first letter; with one letter, closing returns directly to its envelope. Reopening a letter counts as another choice. A letter opens only after saving succeeds; retries of the same request do not create duplicate records.
 
 Timing starts when the carousel appears and stops at confirmation. Each subsequent choice starts a fresh timer, excluding time spent reading, on the reveal, or in a hidden tab. The timer restarts if the page reloads before submission.
 

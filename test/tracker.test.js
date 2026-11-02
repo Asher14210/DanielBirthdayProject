@@ -21,13 +21,13 @@ async function request(method, action, body, cookies = '') {
 
 test('validates decisions and rejects forged letter names', () => {
   const requestId = randomUUID();
-  assert.deepEqual(validateSubmission({ name: 'Daniel', letterId: 'botanist', durationMs: 1234, requestId }), {
-    name: 'Daniel', letterId: 'botanist', letterName: 'The Botanist', durationMs: 1234, requestId,
+  assert.deepEqual(validateSubmission({ name: 'Daniel', letterId: 'wendy', durationMs: 1234, requestId }), {
+    name: 'Daniel', letterId: 'wendy', letterName: '别看这个', durationMs: 1234, requestId,
   });
-  assert.equal(validateSubmission({ name: '', letterId: 'botanist', durationMs: 1234, requestId }), null);
+  assert.equal(validateSubmission({ name: '', letterId: 'wendy', durationMs: 1234, requestId }), null);
   assert.equal(validateSubmission({ name: 'Daniel', letterId: 'forged', durationMs: 1234, requestId }), null);
-  assert.equal(validateSubmission({ name: 'Daniel', letterId: 'botanist', durationMs: null, requestId }), null);
-  assert.equal(validateSubmission({ name: 'Daniel', letterId: 'botanist', durationMs: 1234, requestId: 'invalid' }), null);
+  assert.equal(validateSubmission({ name: 'Daniel', letterId: 'wendy', durationMs: null, requestId }), null);
+  assert.equal(validateSubmission({ name: 'Daniel', letterId: 'wendy', durationMs: 1234, requestId: 'invalid' }), null);
 });
 
 test('requires an exact admin password', () => {
@@ -72,7 +72,7 @@ test('only Daniel can enter and submissions require an unexpired entry bound to 
   assert.ok(Number(expires) > Date.now());
   assert.equal(signed, createHmac('sha256', process.env.ADMIN_PASSWORD).update(`entry:${id}:${expires}`).digest('hex'));
 
-  const body = { name: 'Daniel', letterId: 'botanist', durationMs: 1500, requestId: randomUUID() };
+  const body = { name: 'Daniel', letterId: 'wendy', durationMs: 1500, requestId: randomUUID() };
   assert.equal((await request('POST', '', body, visitor)).statusCode, 403);
   assert.equal((await request('POST', '', body, `${visitor}; ${entryCookie}tampered`)).statusCode, 403);
   assert.equal((await request('POST', '', body, `decision_visitor=${randomUUID()}; ${entryCookie}`)).statusCode, 403);
@@ -116,7 +116,7 @@ test('multiple choices retain browser identity, retries deduplicate, and admin t
       return { ...record, choice_order };
     }).reverse());
   });
-  const body = { name: 'Daniel', letterId: 'botanist', durationMs: 1500, requestId: randomUUID() };
+  const body = { name: 'Daniel', letterId: 'wendy', durationMs: 1500, requestId: randomUUID() };
   assert.equal((await request('POST', '', body)).statusCode, 428);
   const initial = await request('GET', 'status');
   assert.deepEqual(initial.body, { admin: false });
@@ -131,7 +131,7 @@ test('multiple choices retain browser identity, retries deduplicate, and admin t
   const returning = await request('GET', 'status', undefined, visitor);
   assert.equal(returning.headers['Set-Cookie'].split(';')[0], visitor);
   const nextChoices = await Promise.all([
-    request('POST', '', { ...body, name: ' Daniel ', letterId: 'alchemist', requestId: randomUUID() }, participantCookies),
+    request('POST', '', { ...body, name: ' Daniel ', letterId: 'wendy', requestId: randomUUID() }, participantCookies),
     request('POST', '', { ...body, requestId: randomUUID() }, participantCookies),
   ]);
   assert.deepEqual(nextChoices.map(res => res.statusCode), [200, 200]);
