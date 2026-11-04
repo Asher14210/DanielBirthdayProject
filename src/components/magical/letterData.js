@@ -68,4 +68,17 @@ export const letters = [
     body: ["Hey! Living DnD 5e PHB… can’t believe I’m talking to such a nerd hahahahaha that actually solved my puzzle! 😈 I bet u LOVED it!! Didn’t u? I hope u didn’t need any hint, if u did, just get more nerdy so won’t need them next time!\n\nAnyways, I’m sorry I took until November to make this. It took me 2 months 😰. I will def be on time next time. Time goes so fast, can’t believe your a junior now (trying to be nicer here but u actually behave like a middle school kid hahahaha, well at least “sometimes” better than “some other people”). You are definitely the person that changed the most over these years. 那个腼腆小男孩去哪了啊啊啊???? 咋变成这种贱人了😠 U know the first impression we have on u, I don’t have to repeat it again here. \n\nIt’s so hard to believe that you’re gonna graduate next year, but let’s not worry about that now. I hope u are enjoying your junior year, enjoy our club and enjoy the good things that are happening around u! 话说你周末能多来深圳玩一下吗，真的好想叫你出来玩啊啊！你能不能不要宅在家里内卷了啊啊啊！\n\nAt the end, Happy Birthday! (3 months late) The upcoming year will be very important for u. This time next year, u will already be done with your ED and waiting for your offer?  祝你GPA 4.0 AP全部5分吧！I don’t think you’re the person that I should be telling them to sleep earlier and 好好吃饭, but if at any time u feel overwhelmed, remember to 对自己好一点吧! I’m saying this because I want u to know that I still care about u (I’m not the person that only bully u hahahah) BUT, please keep attending club!! Even when you do face a lot of pressure!! \n\n—Benjamin"],
     sign: '',
   },
+  {
+    id: 'dr-smith',
+    name: 'Happy Birthday!',
+    sender: 'Dr Smith',
+    tone: '#b18a4e',
+    ink: '#44301d',
+    seal: '#8a572e',
+    mark: '△',
+    note: '',
+    salutation: '',
+    body: ['Happy birthday to the most brilliant and dangerous roleplayer between the Sword Coast and the Moonsea! Thank you so much for your hard work as club leader. It is an honor to work with you.'],
+    sign: 'Dr Smith',
+  },
 ];

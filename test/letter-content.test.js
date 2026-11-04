@@ -5,7 +5,7 @@ import { letters } from '../src/components/magical/letterData.js';
 import { validateSubmission } from '../supabase/functions/_shared/tracker.js';
 
 test('the public collection keeps Wendy first in the winter envelope style', () => {
-  assert.deepEqual(letters.map(letter => letter.id), ['wendy', 'rachel', 'yvonne', 'amy', 'benjamin']);
+  assert.deepEqual(letters.map(letter => letter.id), ['wendy', 'rachel', 'yvonne', 'amy', 'benjamin', 'dr-smith']);
   const [letter] = letters;
   assert.equal(letter.id, 'wendy');
   assert.equal(letter.name, '别看这个');
@@ -74,6 +74,18 @@ test('Benjamin is fifth, using the Midnight envelope and exact signed message', 
   assert.ok(letter.body[0].endsWith('\n\n—Benjamin'));
 });
 
+test('Dr Smith is sixth, using the Alchemist envelope and exact message', () => {
+  const letter = letters[5];
+  assert.equal(letter.id, 'dr-smith');
+  assert.equal(letter.name, 'Happy Birthday!');
+  assert.equal(letter.sender, 'Dr Smith');
+  assert.equal(letter.sign, 'Dr Smith');
+  assert.equal(letter.note, '');
+  assert.equal(letter.salutation, '');
+  assert.deepEqual([letter.tone, letter.ink, letter.seal, letter.mark], ['#b18a4e', '#44301d', '#8a572e', '△']);
+  assert.deepEqual(letter.body, ['Happy birthday to the most brilliant and dangerous roleplayer between the Sword Coast and the Moonsea! Thank you so much for your hard work as club leader. It is an honor to work with you.']);
+});
+
 test('the multilingual message is preserved byte-for-byte, without generated prose', () => {
   assert.equal(letters[0].body.length, 1);
   assert.equal(createHash('sha256').update(letters[0].body[0], 'utf8').digest('hex'), 'dbb5f8cc9eaff1f4f1f1b5c5ddcda67e292c1c04f43d9477993e7a5ea6f53a4c');
@@ -86,6 +98,10 @@ test('tracking uses the real title while allowing previously loaded pages during
   assert.equal(validateSubmission({ ...payload, letterId: 'yvonne' }).letterName, 'Happy Birthday!');
   assert.equal(validateSubmission({ ...payload, letterId: 'amy' }).letterName, 'Totally no Chaotic Chaotic Evilness in here');
   assert.equal(validateSubmission({ ...payload, letterId: 'benjamin' }).letterName, 'Read this if you are a 5e nerd');
+  const smithChoice = validateSubmission({ ...payload, letterId: 'dr-smith' });
+  assert.equal(smithChoice.letterName, 'Happy Birthday!');
+  assert.equal(smithChoice.letterId, 'dr-smith');
+  assert.notEqual(smithChoice.letterId, validateSubmission({ ...payload, letterId: 'yvonne' }).letterId);
   assert.equal(validateSubmission({ ...payload, letterId: 'winter' }).letterName, 'The Winter Letter');
   assert.equal(validateSubmission({ ...payload, letterId: 'not-a-letter' }), null);
 });

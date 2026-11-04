@@ -8,6 +8,8 @@ The public collection contains **Wendy — 别看这个** first, using the winte
 
 When changing letter IDs or names, deploy the Supabase function before the website so tracking recognizes them. Its server-only legacy ID/name map accepts already-open pages from earlier deployments without putting sample content in the frontend or rewriting historical records.
 
+**Dr Smith — Happy Birthday!** is sixth, using The Alchemist's gold paper, copper-brown seal, and triangle mark. The supplied message is preserved verbatim. Admin records include each known letter's sender, distinguishing Dr Smith's choice from Yvonne's identically titled letter without changing stored history.
+
 ## Decision tracker
 
 Only the exact name `Daniel` (ignoring surrounding spaces) passes the homepage name gate. The server issues an eight-hour signed entry cookie tied to the browser and requires it for normal submissions. This is a name gate, not identity verification or protection for the letter text bundled in the public website. The admin password still opens `/admin` from the homepage and allows unlimited test choices.
