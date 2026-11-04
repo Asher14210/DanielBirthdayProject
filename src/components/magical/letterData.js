@@ -81,4 +81,17 @@ export const letters = [
     body: ['Happy birthday to the most brilliant and dangerous roleplayer between the Sword Coast and the Moonsea! Thank you so much for your hard work as club leader. It is an honor to work with you.'],
     sign: 'Dr Smith',
   },
+  {
+    id: 'jerry',
+    name: '打开我！！！',
+    sender: 'Jerry',
+    tone: '#d6bd91',
+    ink: '#453326',
+    seal: '#805039',
+    mark: '⌂',
+    note: '',
+    salutation: '',
+    body: ['egg bird 生日快乐。我猜你知道我祝你生日快乐，所以就不写很多了🎂'],
+    sign: 'Jerry',
+  },
 ];

@@ -10,6 +10,8 @@ When changing letter IDs or names, deploy the Supabase function before the websi
 
 **Dr Smith — Happy Birthday!** is sixth, using The Alchemist's gold paper, copper-brown seal, and triangle mark. The supplied message is preserved verbatim. Admin records include each known letter's sender, distinguishing Dr Smith's choice from Yvonne's identically titled letter without changing stored history.
 
+**Jerry — 打开我！！！** is seventh, using A Letter From Home's warm paper palette and house seal. The supplied Chinese message and cake emoji are preserved verbatim, with Jerry shown as the sender.
+
 ## Decision tracker
 
 Only the exact name `Daniel` (ignoring surrounding spaces) passes the homepage name gate. The server issues an eight-hour signed entry cookie tied to the browser and requires it for normal submissions. This is a name gate, not identity verification or protection for the letter text bundled in the public website. The admin password still opens `/admin` from the homepage and allows unlimited test choices.
