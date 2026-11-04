@@ -34,7 +34,7 @@ export default function OpeningSequence({letter,onComplete}) {
         initial={{rotateX:0}} animate={{rotateX:[0,0,-168,-175]}
 }        transition={{duration:.46,delay:.52,times:[0,.08,.78,1],ease:[.34,0,.2,1]}}/>
       {/* Wax seal catches light, then breaks */}
-      <motion.div className="open-seal" style={{'--wax':wax}}
+      <motion.div className="open-seal" style={{'--wax':wax,color:letter.sealInk}}
         initial={{scale:1,rotate:0}} animate={{scale:[1,1.06,.2,0],rotate:[0,4,14,22],y:[0,0,40,90]}}
         transition={{duration:.42,delay:.74,times:[0,.4,.7,1],ease:ez}}>{letter.mark}</motion.div>
       {/* The letter is nudged forward + grown toward the reader at the end */}

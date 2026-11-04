@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gray-on-color",
+        "value": "*",
+        "files": [
+          "src/pages/Admin.jsx"
+        ],
+        "createdAt": "2026-11-04T03:12:38.704Z",
+        "reason": "Agent review: only finding is existing near-black text-slate-950 (#020617) on amber-300 (#fcd34d) Unlock button, 13.99:1 contrast; preserve existing high-contrast UI, not washed-out gray."
+      }
+    ]
+  }
+}

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 export default function Envelope({letter,index,selected,read,onSelect,opening=false}) {
   const tilt=[-4,2,-2,4,-3,1,3,-1,2,-3][index%10];
   return <motion.button aria-label={`${letter.name}${read?', read':''}`} onClick={()=>onSelect?.(index)}
-    className={`envelope ${letter.name.length>30?'envelope--long-title':''} ${selected?'is-selected':''} ${read?'is-read':''} ${opening?'is-opening':''}`}
+    className={`envelope ${letter.compactTitle||letter.name.length>30?'envelope--long-title':''} ${selected?'is-selected':''} ${read?'is-read':''} ${opening?'is-opening':''}`}
     style={{'--paper':letter.tone,'--paper2':shade(letter.tone,-14),'--paper3':shade(letter.tone,10),'--ink':letter.ink,'--wax':letter.seal,'--wax2':shade(letter.seal,-22),'--wax3':shade(letter.seal,28),'--tilt':`${tilt}deg`}}
     initial={false} animate={{y:selected?-18:0,scale:selected?1.04:1,rotate:selected?0:tilt}}
     whileHover={!opening?{y:selected?-21:-7,rotate:tilt*.25}:undefined}
@@ -18,7 +18,7 @@ export default function Envelope({letter,index,selected,read,onSelect,opening=fa
     <span className="envelope-address"><small>{letter.note}</small><b>{letter.name}</b><em>{letter.sender}</em></span>
     <span className="stamp">{String(index+1).padStart(2,'0')}<i>{letter.mark}</i></span>
     <span className="wax-seal" aria-hidden="true">
-      <span className="wax-rim"/><span className="wax-face"><i>{letter.mark}</i></span>
+      <span className="wax-rim"/><span className="wax-face" style={{color:letter.sealInk}}><i>{letter.mark}</i></span>
       <span className="wax-glint"/><span className="wax-edge-light"/>
     </span>
     {read&&<span className="read-mark">read ✓</span>}
