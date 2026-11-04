@@ -5,7 +5,7 @@ import { letters } from '../src/components/magical/letterData.js';
 import { validateSubmission } from '../supabase/functions/_shared/tracker.js';
 
 test('the public collection keeps Wendy first in the winter envelope style', () => {
-  assert.deepEqual(letters.map(letter => letter.id), ['wendy', 'rachel', 'yvonne', 'amy']);
+  assert.deepEqual(letters.map(letter => letter.id), ['wendy', 'rachel', 'yvonne', 'amy', 'benjamin']);
   const [letter] = letters;
   assert.equal(letter.id, 'wendy');
   assert.equal(letter.name, '别看这个');
@@ -57,6 +57,23 @@ test('Amy is fourth, using the Botanist envelope and exact bilingual message', (
   assert.deepEqual(letter.body[0].split('\n').filter(line => line.startsWith('——')), ['—— Adrian', '—— Incubus', '—— Cerval', '——Sephiran', '—— Ossia', '—— Amy in person']);
 });
 
+test('Benjamin is fifth, using the Midnight envelope and exact signed message', () => {
+  const letter = letters[4];
+  assert.equal(letter.name, 'Read this if you are a 5e nerd');
+  assert.equal(letter.sender, 'Benjamin');
+  assert.equal(letter.note, '');
+  assert.equal(letter.salutation, '');
+  assert.equal(letter.sign, '');
+  assert.equal(letter.closing, undefined);
+  assert.deepEqual([letter.tone, letter.ink, letter.seal, letter.mark], ['#303642', '#d8d1bc', '#8296a3', '☾']);
+  assert.equal(letter.sealInk, '#e0e8ed');
+  assert.equal(letter.readingInk, '#29313c');
+  assert.equal(letter.compactTitle, true);
+  assert.equal(letter.body.length, 1);
+  assert.equal(createHash('sha256').update(letter.body[0], 'utf8').digest('hex'), '698175cc080fc62c5df40e025f52ff46b937329931013e49e6c9300da4e5a56e');
+  assert.ok(letter.body[0].endsWith('\n\n—Benjamin'));
+});
+
 test('the multilingual message is preserved byte-for-byte, without generated prose', () => {
   assert.equal(letters[0].body.length, 1);
   assert.equal(createHash('sha256').update(letters[0].body[0], 'utf8').digest('hex'), 'dbb5f8cc9eaff1f4f1f1b5c5ddcda67e292c1c04f43d9477993e7a5ea6f53a4c');
@@ -68,6 +85,7 @@ test('tracking uses the real title while allowing previously loaded pages during
   assert.equal(validateSubmission({ ...payload, letterId: 'rachel' }).letterName, 'Happy Eggberthday!');
   assert.equal(validateSubmission({ ...payload, letterId: 'yvonne' }).letterName, 'Happy Birthday!');
   assert.equal(validateSubmission({ ...payload, letterId: 'amy' }).letterName, 'Totally no Chaotic Chaotic Evilness in here');
+  assert.equal(validateSubmission({ ...payload, letterId: 'benjamin' }).letterName, 'Read this if you are a 5e nerd');
   assert.equal(validateSubmission({ ...payload, letterId: 'winter' }).letterName, 'The Winter Letter');
   assert.equal(validateSubmission({ ...payload, letterId: 'not-a-letter' }), null);
 });
